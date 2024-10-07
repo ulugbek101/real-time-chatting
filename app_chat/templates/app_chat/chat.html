@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container m-auto h-full">
+    <div class="rounded border border-slate-500 p-2 flex items-start justify-between h-svh">
+        <div class="w-[30%] border-r border-slate-500 p-2 h-full">
+            <div class="relative">
+                <i class="material-icons text-slate-500 absolute top-1/2 right-4 -translate-x-1/2 -translate-y-1/2">search</i>
+                <input type="search" placeholder="@username" class="w-full rounded px-2 py-1 text-white font-bold outline-none bg-slate-900 border border-slate-500">
+            </div>
+            <div class="flex flex-col gap-2 mt-5">
+                {% for user in users %}
+                    <a href="{% url 'chat_room' username=user.username %}" class="border-b border-slate-500">
+                        <div class="flex items-center gap-4 mb-2 active:scale-90 transition select-none p-2 cursor-pointer hover:bg-slate-800 rounded-xl">
+                            <img class="rounded-full w-10 h-10" src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?size=338&ext=jpg&ga=GA1.1.1819120589.1727654400&semt=ais_hybrid" alt="">
+                            <div class="flex flex-col">
+                                <b>@{{ user.username }}</b>
+                                <!-- <small>Last time we have talked about this was 1 year age, since then you ...</small> -->
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="w-[68%] min-h-[700px]"></div>
+    </div>
+</main>
+{% endblock content %}

@@ -1,0 +1,251 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<script
+	type="text/javascript"
+	src="{% static 'ckeditor/ckeditor-init.js' %}"
+></script>
+<script
+	type="text/javascript"
+	src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"
+></script>
+
+<main class="container m-auto h-full">
+	<div
+		class="rounded border border-slate-500 p-2 flex items-start justify-between h-svh"
+	>
+		<div class="w-full h-full">
+			<div class="flex flex-col justify-between h-full">
+				<div
+					class="h-[10%] p-2 border-b border-slate-500 flex items-center justify-between"
+				>
+					<a
+						href="{% url 'chat' %}"
+						class="hover:bg-opacity-60 active:scale-90 rounded-full transition bg-opacity-40 bg-slate-500 py-2 px-3 max-w-max"
+					>
+						<i class="material-icons text-sm text-center ml-1"
+							>arrow_back_ios</i
+						>
+					</a>
+					<div class="flex flex-col items-end">
+						<div class="flex items-center flex-row gap-2">
+							<img
+								class="rounded-full w-10 h-10"
+								src="https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?size=338&ext=jpg&ga=GA1.1.1819120589.1727654400&semt=ais_hybrid"
+								alt=""
+							/>
+							<div class="flex flex-col items-end">
+								<p class="text-xl">@{{ user.username }}</p>
+								<small class="text-slate-500">{{ user.first_name }} {{ user.last_name }}</small>
+							</div>
+						</div>
+						<div class="flex items-center gap-2" id="people_in_chat_quantity"></div>
+					</div>
+				</div>
+				<div
+					id="msg-container"
+					class="h-[75%] max-h-[550px] overflow-scroll py-2 px-8 flex flex-col gap-2"
+				></div>
+				<div
+					class="h-[15%] p-2 flex flex-row gap-1 justify-between items-center"
+				>
+					<textarea
+						type="text"
+						id="msg-box"
+						class="bg-slate-900 text-white w-full h-full border outline-none border-slate-500 rounded p-2 resize-none"
+						placeholder="Your message ..."
+					></textarea>
+					<button
+						id="send-btn"
+						class="max-w-max max-h-max p-2 bg-blue-600 active:scale-95 hover:bg-blue-700 rounded transition"
+						type="submit"
+					>
+						Send
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+
+{{ user.username|json_script:"room-name" }}
+<script>
+	const roomName = JSON.parse(document.getElementById("room-name").textContent);
+
+	const chatSocket = new WebSocket(
+		"ws://" + window.location.host + "/ws/chat-room/@" + roomName + "/"
+	);
+
+	chatSocket.onmessage = function (e) {
+		const data = JSON.parse(e.data);
+
+		const messageContainer = document.querySelector("#msg-container");
+
+		// Check if the user is near the bottom before appending the new message
+		const isAtBottom = messageContainer.scrollHeight - messageContainer.scrollTop <= messageContainer.clientHeight + 100;
+
+		if (data.type === "message_history") {
+			data.data.forEach(message => {
+				const messageDate = new Date(message.date)
+					.toISOString()
+					.slice(0, 16)
+					.replace("T", " ");
+				const messageHtml = `
+					<div class="flex flex-row justify-${
+						message.from_user_id == "{{ request.user.id }}" ? "end" : "start"
+					}">
+						<div class="flex flex-col items-start p-2 rounded-lg bg-${
+							message.from_user_id == "{{ request.user.id }}" ? "purple" : "slate"
+						}-600 max-w-max">
+							<p>${message.message}</p>
+							<div class="flex flex-row justify-between w-full gap-2">
+								<small>${messageDate}</small>
+								<span class="material-icons text-white text-sm items-center">done_all</span>
+							</div>
+						</div>
+					</div>
+				`;
+				messageContainer.innerHTML += messageHtml;
+			});
+		}
+		
+		else if (data.type === "people_in_chat_quantity") {
+			console.log(data.count)
+
+			document.getElementById('people_in_chat_quantity').innerHTML = `
+				<span class="relative flex h-3 w-3">
+					<span
+						class="${data.count == 1 && 'animate-ping'} absolute inline-flex h-full w-full rounded-full bg-${data.count == 1 ? 'green' : 'red'}-400 opacity-75"
+					></span>
+					<span
+						class="relative inline-flex rounded-full h-3 w-3 bg-${data.count == 1 ? 'green' : 'red'}-500"
+					></span>
+				</span>
+				<span class="text-sm" id="user-status">${data.count == 1 ? 'Online' : 'Offline'}</span>
+			`
+		} else {
+			const messageDate = new Date(data.date)
+				.toISOString()
+				.slice(0, 16)
+				.replace("T", " ");
+
+			const messageHtml = `
+				<div class="flex flex-row justify-${
+					data.from_user_id == "{{ request.user.id }}" ? "end" : "start"
+				}">
+					<div class="flex flex-col items-start p-2 rounded-lg bg-${
+							data.from_user_id == "{{ request.user.id }}" ? "purple" : "slate"
+						}-600 max-w-max">
+						<p>${data.message}</p>
+						<div class="flex flex-row justify-between w-full gap-2">
+							<small>${messageDate}</small>
+							<span class="material-icons text-white text-sm items-center">done_all</span>
+						</div>
+					</div>
+				</div>
+			`;
+			messageContainer.innerHTML += messageHtml;
+		}
+
+		// Scroll to the bottom if the user is already near the bottom
+		if (isAtBottom) {
+			messageContainer.scrollTop = messageContainer.scrollHeight;
+		}
+	};
+
+
+	chatSocket.onclose = function (e) {
+		console.error("Chat socket closed unexpectedly");
+	};
+
+	document.querySelector("#msg-box").focus();
+
+	// document.querySelector("#send-btn").onclick = function (e) {
+	//     const messageInputDom = CKEDITOR.instances['msg-box'];
+	//     const message = messageInputDom.getData(); // Get the content of CKEditor
+
+	//     if (message.trim().length === 0) return;
+
+	//     chatSocket.send(
+	//         JSON.stringify({
+	//             type: "message",
+	//             from_user_id: "{{ request.user.id }}",
+	//             to_user_id: "{{ user.id }}",
+	//             message: message,
+	//         })
+	//     );
+
+	//     messageInputDom.setData(''); // Clear the CKEditor content
+
+	//     messageInputDom.focus(); // Focus back to CKEditor
+	// };
+	document.querySelector("#send-btn").onclick = function (e) {
+		const messageInputDom = document.querySelector("#msg-box");
+		const message = messageInputDom.value;
+
+		if (message.trim().length === 0) return;
+
+		chatSocket.send(
+			JSON.stringify({
+				type: "message",
+				from_user_id: "{{ request.user.id }}",
+				to_user_id: "{{ user.id }}",
+				message: message,
+			})
+		);
+		messageInputDom.value = "";
+
+		messageInputDom.focus();
+	};
+
+	// CKEDITOR SETTINGS
+	// CKEDITOR.replace("msg-box", {
+	// 	toolbar: [
+	// 		{ name: "basicstyles", items: ["Bold", "Italic", "Underline"] },
+	// 		{ name: "paragraph", items: ["NumberedList", "BulletedList"] },
+	// 		{ name: "links", items: ["Link", "Unlink"] },
+	// 		{ name: "insert", items: ["Image", "Table"] },
+	// 	],
+	// 	removeButtons: "",
+	//     // bodyClass: 'dark-editor-content',
+	//     // uiColor: '#2b2b2b', // Dark mode toolbar
+	// 	height: 100,
+	// 	// Apply dark mode styles to content area
+	// 	contentsCss: [
+	// 		"https://cdn.jsdelivr.net/npm/normalize.css", // optional: normalize styles
+	// 		"data:text/css;base64,LyoqIFNldCB0aGVtZSBzdHlsZXMgKi8KYm9keSB7IGJhY2tncm91bmQ6ICMxZDJlMzM7IGNvbG9yOiAjZmZmOyB9Cg==", // minimal inline CSS for dark theme
+	// 	],
+	// 	bodyClass: "dark-editor-content",
+	// 	// uiColor: '#2b2b2b', // UI dark theme color
+	// 	resize_enabled: false,
+	// });
+</script>
+<style>
+	.cke_top,
+	.cke_bottom {
+		background-color: #0f172a;
+		color: #ffffff;
+	}
+
+	.cke_button__bold_icon,
+	.cke_button__italic_icon,
+	.cke_button__underline_icon {
+		filter: brightness(0) invert(1); /* Make toolbar icons visible */
+	}
+
+	/* Dark mode for CKEditor content */
+	.dark-editor-content {
+		background-color: #0f172a !important; /* Set field background */
+		color: #fff; /* Set text color to white */
+		font-family: sans-serif; /* Optional: adjust font */
+	}
+
+	.cke_button_icon {
+		filter: brightness(0) invert(1); /* This inverts the colors, making dark icons white */
+	}
+
+	/* Custom scrollbar (optional) */
+	.cke_contents {
+		scrollbar-color: #888 #2b2b2b;
+		scrollbar-width: thin;
+	}
+</style>
+{% endblock content %}
