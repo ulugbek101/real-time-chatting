@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'app_chat',
-    'app_users',
+    'app_chat.apps.AppChatConfig',
+    'app_users.apps.AppUsersConfig',
 
     'ckeditor',
     'ckeditor_uploader',
@@ -139,7 +139,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+AUTH_USER_MODEL = 'app_users.UserModel'
 
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = '/'

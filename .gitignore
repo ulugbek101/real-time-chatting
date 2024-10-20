@@ -3,10 +3,15 @@
 env/
 venv/
 
-__migrations__/
-*/__migrations__/
-*/*/__migrations__/
-*/*/*/__migrations__/
+migrations/*
+*/migrations/*
+*/*/migrations/*
+*/*/*/migrations/*
+
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
 
 .DS_Store
 db.sqlite3
