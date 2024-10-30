@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <section class="bg-gray-50 dark:bg-gray-900" style="background: url('https://i.pinimg.com/736x/97/c0/07/97c00759d90d786d9b6096d274ad3e07.jpg');">
-    <div class="flex flex-col items-end justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+    <div class="flex flex-row items-center justify-evenly px-6 py-8 mx-auto md:h-screen lg:py-0">
+
+        <img class="w-1/2" src="{% static 'images/registration.png' %}" alt="">
 
         <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
             <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -25,14 +28,18 @@
                             <label for="terms" class="font-light text-gray-500 dark:text-gray-300">I accept the <a class="font-medium text-blue-600 hover:underline dark:text-blue-500" href="#">Terms and Conditions</a></label>
                         </div>
                     </div>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <p class="text-red-600 text-center">{{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
                     <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create an account</button>
                     <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                        Already have an account? <a href="{% url 'login' %}" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Login here</a>
+                        Already have an account ? <a href="{% url 'login' %}" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Sign in</a>
                     </p>
                 </form>
             </div>
         </div>
-
     </div>
 </section>
 {% endblock content %}

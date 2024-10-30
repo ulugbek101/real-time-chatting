@@ -1,0 +1,12 @@
+{% if messages %}
+    {% for message in messages %}
+        <div class="absolute right-[10px] bottom-[10px] p-4 rounded-lg shadow bg-{% if message.tags == 'info' %}blue{% elif message.tags == 'warning' %}yellow{% elif message.tags == 'error' %}red{% elif message.tags == 'success' %}green{% endif %}-900 max-w-[500px]">
+            <div class="flex items-center gap-2">
+                <p>
+                    {{ message|linebreaksbr }}
+                </p>
+                <i class="material-icons cursor-pointer hover:text-white active:scale-90 select-none">close</i>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}

@@ -8,10 +8,10 @@ migrations/*
 */*/migrations/*
 */*/*/migrations/*
 
-__pycache__/
-*/__pycache__/
-*/*/__pycache__/
-*/*/*/__pycache__/
+__pycache__/*
+*/__pycache__/*
+*/*/__pycache__/*
+*/*/*/__pycache__/*
 
 .DS_Store
 db.sqlite3

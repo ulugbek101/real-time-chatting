@@ -1,11 +1,32 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<form action="" method="post">
-    {% csrf_token %}
-    <input type="email" name="username" id="email" placeholder="email">
-    <input type="password" name="password" id="password" placeholder="password">
-    <button type="submit">Login</button>
-    <a href="{% url 'registration' %}">Registration</a>
-</form>
+<section class="bg-gray-50 dark:bg-gray-900" style="background: url('https://i.pinimg.com/736x/97/c0/07/97c00759d90d786d9b6096d274ad3e07.jpg');">
+    <div class="flex flex-row items-center justify-evenly px-6 py-8 mx-auto md:h-screen lg:py-0">
+
+        <img class="w-1/2" src="{% static 'images/login.png' %}" alt="Login">
+
+        <div class="w-1/2 bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+            <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    Sign in
+                </h1>
+                <form method="post" class="space-y-4 md:space-y-6" action="">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div>
+                            <label for="id_{{ field.name }}" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ field.label }}:</label>
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Login</button>
+                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                        Don't have an account ? <a href="{% url 'registration' %}" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Sign up</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock content %}  
